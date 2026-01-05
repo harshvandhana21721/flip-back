@@ -26,7 +26,6 @@ router.post("/products", async (req, res) => {
   res.json({ success: true });
 });
 
-/* DELETE PRODUCT */
 router.delete("/products/:id", async (req, res) => {
   await fetch(`${DB_URL}/products/${req.params.id}.json`, {
     method: "DELETE"
