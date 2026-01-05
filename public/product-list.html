@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin – Products</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#f1f3f6;
+}
+
+/* HEADER */
+.header{
+    background:#2874f0;
+    color:#fff;
+    padding:14px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.header span{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.header a{
+    color:#fff;
+    text-decoration:none;
+    font-size:14px;
+    background:rgba(255,255,255,.2);
+    padding:6px 12px;
+    border-radius:6px;
+}
+
+/* CONTAINER */
+.container{
+    padding:16px;
+    max-width:900px;
+    margin:auto;
+}
+
+/* PRODUCT CARD */
+.product{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:#fff;
+    padding:14px;
+    border-radius:14px;
+    margin-bottom:12px;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+
+.left{
+    display:flex;
+    gap:14px;
+    align-items:center;
+}
+
+.left img{
+    width:80px;
+    height:80px;
+    object-fit:contain;
+    border-radius:10px;
+    border:1px solid #eee;
+    background:#fafafa;
+}
+
+.info b{
+    font-size:15px;
+    color:#212121;
+}
+
+.price{
+    margin-top:4px;
+    font-weight:bold;
+    color:#388e3c;
+}
+
+.delete{
+    background:#ff3d3d;
+    color:#fff;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.empty{
+    text-align:center;
+    color:#777;
+    margin-top:40px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <span>Product List</span>
+    <a href="/">+ Add Product</a>
+</div>
+
+<div class="container" id="list">
+    <div class="empty">Loading products…</div>
+</div>
+
+<script>
+async function loadProducts(){
+    const res = await fetch("/api/products");
+    const data = await res.json();
+
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    if(!data){
+        list.innerHTML = `<div class="empty">No products found</div>`;
+        return;
+    }
+
+    Object.values(data)
+        .sort((a,b)=>b.createdAt - a.createdAt)
+        .forEach(p=>{
+            list.innerHTML += `
+            <div class="product">
+                <div class="left">
+                    <img src="${p.image}">
+                    <div class="info">
+                        <b>${p.name}</b>
+                        <div class="price">₹${p.price}</div>
+                    </div>
+                </div>
+                <button class="delete" onclick="deleteProduct(${p.id})">
+                    Delete
+                </button>
+            </div>`;
+        });
+}
+
+async function deleteProduct(id){
+    if(!confirm("Delete this product?")) return;
+    await fetch("/api/products/"+id,{method:"DELETE"});
+    loadProducts();
+}
+
+loadProducts();
+</script>
+
+</body>
+</html>

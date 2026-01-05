@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin – Add Product</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:#f1f3f6;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+/* HEADER */
+.header{
+    width:100%;
+    background:#2874f0;
+    color:#fff;
+    padding:18px;
+    font-size:22px;
+    font-weight:bold;
+    text-align:center;
+}
+
+/* CARD */
+.card{
+    width:100%;
+    max-width:420px;
+    background:#fff;
+    margin:30px 16px;
+    padding:26px;
+    border-radius:18px;
+    box-shadow:0 8px 22px rgba(0,0,0,.15);
+}
+
+.card h2{
+    text-align:center;
+    margin-bottom:22px;
+    color:#212121;
+}
+
+.group{
+    margin-bottom:16px;
+}
+
+label{
+    font-size:13px;
+    font-weight:600;
+    color:#555;
+    display:block;
+    margin-bottom:6px;
+}
+
+input{
+    width:100%;
+    padding:13px;
+    border-radius:12px;
+    border:1px solid #ccc;
+    font-size:14px;
+    outline:none;
+}
+
+input:focus{
+    border-color:#2874f0;
+}
+
+input[type="file"]{
+    padding:9px;
+    background:#fafafa;
+}
+
+.preview{
+    width:100%;
+    height:180px;
+    border:1px dashed #ccc;
+    border-radius:14px;
+    margin-top:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#999;
+    font-size:14px;
+    overflow:hidden;
+}
+
+.preview img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:14px;
+    background:#2874f0;
+    color:#fff;
+    border:none;
+    font-size:16px;
+    font-weight:bold;
+    border-radius:14px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1f5fd1;
+}
+
+a{
+    display:block;
+    margin-top:18px;
+    text-align:center;
+    text-decoration:none;
+    font-size:14px;
+    color:#2874f0;
+    font-weight:600;
+}
+
+.note{
+    text-align:center;
+    font-size:12px;
+    color:#777;
+    margin-top:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Admin Dashboard</div>
+
+<div class="card">
+    <h2>Add New Product</h2>
+
+    <div class="group">
+        <label>Product Name</label>
+        <input id="name" placeholder="Enter product name">
+    </div>
+
+    <div class="group">
+        <label>Price (₹)</label>
+        <input id="price" type="number" placeholder="Enter price">
+    </div>
+
+    <div class="group">
+        <label>Product Image</label>
+        <input type="file" id="image" accept="image/*">
+        <div class="preview" id="preview">Image Preview</div>
+    </div>
+
+    <button onclick="addProduct()">Add Product</button>
+
+    <a href="/products">View Product List →</a>
+
+    <div class="note">Backend powered by Node.js + Firebase</div>
+</div>
+
+<script>
+const nameInput = document.getElementById("name");
+const priceInput = document.getElementById("price");
+const imageInput = document.getElementById("image");
+const preview = document.getElementById("preview");
+
+imageInput.onchange = () => {
+    const file = imageInput.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        preview.innerHTML = `<img src="${e.target.result}">`;
+    };
+    reader.readAsDataURL(file);
+};
+
+async function addProduct(){
+    const name = nameInput.value.trim();
+    const price = priceInput.value.trim();
+    const file = imageInput.files[0];
+
+    if(!name || !price || !file){
+        alert("Please fill all fields");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+        const product = {
+            id: Date.now(),
+            name,
+            price,
+            image: reader.result,
+            createdAt: Date.now()
+        };
+
+        await fetch("/api/products",{
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body: JSON.stringify(product)
+        });
+
+        alert("Product added successfully");
+        location.reload();
+    };
+
+    reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
